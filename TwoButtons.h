@@ -12,8 +12,6 @@
 
 using namespace std;
 
-typedef std::pair<int, int> Entry;
-
 // ------------
 // twobuttons_read
 // ------------
@@ -23,7 +21,7 @@ typedef std::pair<int, int> Entry;
  * @param s a string
  * @return the input string
  */
-Entry twobuttons_read (const string& s);
+std::pair<int, int> twobuttons_read (const string& s);
 
 // ------------
 // twobuttons_eval

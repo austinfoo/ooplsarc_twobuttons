@@ -15,15 +15,21 @@
 #include <queue>
 #include <utility>
 
-#include "Twobuttons.h"
+#include "TwoButtons.h"
 
 using namespace std;
+
+typedef std::pair<int, int> TBEntry;
+typedef std::queue<TBEntry> TBQueue;
+
+const bool enable_greater_opt = true;
+const bool enable_visit_opt = true;
 
 // ------------
 // twobuttons_read
 // ------------
 
-Entry twobuttons_read (const std::string& s) {
+std::pair<int, int> twobuttons_read (const std::string& s) {
   std::istringstream sin(s);
   int n = 0;
   int m = 0;
@@ -37,37 +43,45 @@ Entry twobuttons_read (const std::string& s) {
 
 int twobuttons_eval (int n, int m)
 {
-  std::queue<Entry> q;
-
+  // Create the queue and seed it with the initial value
+  TBQueue q;
   q.push(std::make_pair(n, 0));
+  
+  // Create visit vector
+  std::vector<bool> v;
+  v.assign(10000, false);
 
   while (!q.empty()) {
 
-    const Entry val = q.front();
+    // Get the entry from the head of the queue
+    const TBEntry entry = q.front();
     q.pop();
-
-    // Check for termination condition
-    if (val.first == m) {
-      return val.second;
-    }
-
-    // Red button - double
-    int red_val = 2 * val.first;
-    int red_count = val.second + 1;
-    Entry red_node (red_val, red_count);
-    q.push(red_node);
     
-    // Blue button - subtract one
-    int blue_val = val.first - 1;
-    if (blue_val >= 0) {
-      int blue_count = val.second + 1;
-      Entry blue_node (blue_val, blue_count);
-      q.push(blue_node);
+    // Check for termination condition
+    if (entry.first == m) {
+      return entry.second;
     }
 
-    // if new val is greater than m then don't push new red val
-    // keep array of vals visited and don't push matches
-
+    // The red button doubles the value
+    // If the greater optimizaiton is enabled, prune the node if the value is greater than m
+    if (!enable_greater_opt || entry.first <= m ) {
+      int red_val = 2 * entry.first;
+      // If the visit optimization is enabled, prune the node if we have seen the value before 
+      if (!enable_visit_opt || !v[red_val]) {
+	q.push(std::make_pair(red_val, entry.second + 1));
+	if (enable_visit_opt) v[red_val] = true;
+      }
+    }
+    
+    // The blue button subtracts one from the value
+    int blue_val = entry.first - 1;
+    // Prune the node if the value is negative
+    if (blue_val >= 0) {
+      if (!enable_visit_opt || !v[blue_val]) {
+	q.push(std::make_pair(blue_val, entry.second  + 1));
+	if (enable_visit_opt) v[blue_val] = true;
+      }
+    }
   }
 
   assert (false);
@@ -89,7 +103,7 @@ void twobuttons_print (ostream& w, const int answer) {
 void twobuttons_solve (istream& r, ostream& w) {
   std::string s;
   while (getline(r, s)) {
-    const Entry val = twobuttons_read(s);
+    const std::pair<int, int> val = twobuttons_read(s);
     const int answer = twobuttons_eval(val.first, val.second);
     twobuttons_print(w, answer);
   }
