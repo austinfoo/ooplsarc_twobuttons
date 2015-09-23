@@ -81,6 +81,7 @@ typedef std::queue<TBEntry> TBQueue;
 
 const bool enable_greater_opt = true;
 const bool enable_visit_opt = true;
+const int max_input_val = 10000;
 
 // ------------
 // twobuttons_read
@@ -106,7 +107,7 @@ int twobuttons_eval (int n, int m)
   
   // Create visit vector
   std::vector<bool> v;
-  v.assign(10000, false);
+  v.assign(2*max_input_val, false);
 
   while (!q.empty()) {
 
